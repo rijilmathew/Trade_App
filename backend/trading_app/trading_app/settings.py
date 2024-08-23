@@ -42,8 +42,12 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'rest_framework',
     'rest_framework_simplejwt',
-    'authentication',
     'corsheaders',
+    'authentication',
+    'tradeone',
+    'django_celery_beat',
+    'django_celery_results',
+    
 ]
 
 MIDDLEWARE = [
@@ -167,3 +171,35 @@ SIMPLE_JWT = {
     'SLIDING_TOKEN_LIFETIME': timedelta(minutes=5),
     'SLIDING_TOKEN_REFRESH_LIFETIME': timedelta(days=1),
 }
+
+
+# settings.py
+CELERY_BROKER_URL = 'redis://localhost:6379/0'  # URL for Redis broker
+CELERY_RESULT_BACKEND = 'redis://localhost:6379/0'  # URL for Redis backend
+CELERY_ACCEPT_CONTENT = ['application/json']
+CELERY_TASK_SERIALIZER = 'json'
+CELERY_RESULT_SERIALIZER = 'json'
+CELERY_RESULT_BACKEND = "django-db"
+
+CELERY_BEAT_SCHEDULER = 'django_celery_beat.schedulers:DatabaseScheduler'
+
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'handlers': {
+        'file': {
+            'level': 'INFO',
+            'class': 'logging.FileHandler',
+            'filename': os.path.join(BASE_DIR, 'celery_tsk.log'),
+        },
+    },
+    'loggers': {
+        'celery': {
+            'handlers': ['file'],
+            'level': 'INFO',
+            'propagate': True,
+        },
+    },
+}
+
+CELERYD_HIJACK_ROOT_LOGGER = False
